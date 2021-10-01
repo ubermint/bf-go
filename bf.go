@@ -8,46 +8,46 @@ import (
     "fmt"
 )
 
-type VM struct {
+type Machine struct {
   index int
   size int
-  arr [1024]byte
+  mem [1024]byte
   reader bufio.Reader
   writer bufio.Writer
 }
 
-func (x *VM) read() byte {
-  b, err := x.reader.ReadByte()
+func (m *Machine) read() byte {
+  b, err := m.reader.ReadByte()
   if err != nil {
     panic(err)
   }
   return b
 }
 
-func (x *VM) write(b *byte) {
+func (m *Machine) write(b *byte) {
   var err error
-  err = x.writer.WriteByte(*b)
+  err = m.writer.WriteByte(*b)
   if err != nil {
     panic(err)
   }
 }
 
-func (x *VM) compute(code []byte) {
-  for i := 0; i < len(code); i++{
+func (m *Machine) compute(code []byte) {
+  for i := 0; i < len(code); i++ {
       char := code[i]
       switch char {
-        case '>': x.index = (x.index + x.size + 1) % x.size
-        case '<': x.index = (x.index + x.size - 1) % x.size
-        case '+': x.arr[x.index] += 1
-        case '-': x.arr[x.index] -= 1
+        case '>': m.index = (m.index + m.size + 1) % m.size
+        case '<': m.index = (m.index + m.size - 1) % m.size
+        case '+': m.mem[m.index] += 1
+        case '-': m.mem[m.index] -= 1
         case '.':
-          output := x.arr[x.index]
-          x.write(&output)
+          output := m.mem[m.index]
+          m.write(&output)
         case ',':
-          input := x.read()
-          x.arr[x.index] += input
+          input := m.read()
+          m.mem[m.index] += input
         case '[':
-          if x.arr[x.index] == 0 {
+          if m.mem[m.index] == 0 {
             for loop := 1; loop > 0; {
               i++
               if code[i] == '[' { loop++ }
@@ -55,7 +55,7 @@ func (x *VM) compute(code []byte) {
             }
           }
         case ']':
-          if x.arr[x.index] != 0 {
+          if m.mem[m.index] != 0 {
             for loop := 1; loop > 0; {
               i--
               if code[i] == ']' { loop++ }
@@ -80,11 +80,11 @@ func reader(path string) io.Reader {
 
 func main() {
   path := flag.String("file", "", "a string")
-  unicode := flag.Bool("utf", false, "a bool")
+  // unicode := flag.Bool("utf", false, "a bool")
   flag.Parse()
 
-
   input := reader(*path)
+  fmt.Print("Brainfuck say:\n")
 
   buf := make([]byte, 0)
   scanner := bufio.NewScanner(input)
@@ -102,8 +102,8 @@ func main() {
   writer := bufio.NewWriter(os.Stdout)
 
   const size int = 1024
-        var arr [size]byte
-  vm := VM{0, size, arr, *reader, *writer}
+  var mem[size]byte
+  vm := Machine{0, size, mem, *reader, *writer}
 
   vm.compute(buf)
 
