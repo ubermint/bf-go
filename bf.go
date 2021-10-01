@@ -1,6 +1,7 @@
 package main
 
 import (
+    . "github.com/ubermint/bf-go/machine"
     "io"
     "os"
     "bufio"
@@ -8,63 +9,7 @@ import (
     "fmt"
 )
 
-type Machine struct {
-  index int
-  size int
-  mem [1024]byte
-  reader bufio.Reader
-  writer bufio.Writer
-}
 
-func (m *Machine) read() byte {
-  b, err := m.reader.ReadByte()
-  if err != nil {
-    panic(err)
-  }
-  return b
-}
-
-func (m *Machine) write(b *byte) {
-  var err error
-  err = m.writer.WriteByte(*b)
-  if err != nil {
-    panic(err)
-  }
-}
-
-func (m *Machine) compute(code []byte) {
-  for i := 0; i < len(code); i++ {
-      char := code[i]
-      switch char {
-        case '>': m.index = (m.index + m.size + 1) % m.size
-        case '<': m.index = (m.index + m.size - 1) % m.size
-        case '+': m.mem[m.index] += 1
-        case '-': m.mem[m.index] -= 1
-        case '.':
-          output := m.mem[m.index]
-          m.write(&output)
-        case ',':
-          input := m.read()
-          m.mem[m.index] += input
-        case '[':
-          if m.mem[m.index] == 0 {
-            for loop := 1; loop > 0; {
-              i++
-              if code[i] == '[' { loop++ }
-              if code[i] == ']' { loop-- }
-            }
-          }
-        case ']':
-          if m.mem[m.index] != 0 {
-            for loop := 1; loop > 0; {
-              i--
-              if code[i] == ']' { loop++ }
-              if code[i] == '[' { loop-- }
-            }
-          }
-      }
-    }
-}
 
 func reader(path string) io.Reader {
     var err error
@@ -105,7 +50,7 @@ func main() {
   var mem[size]byte
   vm := Machine{0, size, mem, *reader, *writer}
 
-  vm.compute(buf)
+  vm.Compute(buf)
 
-  vm.writer.Flush()
+  vm.Writer.Flush()
 }
