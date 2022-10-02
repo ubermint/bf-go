@@ -6,10 +6,10 @@ import (
     "os"
     "bufio"
     "flag"
-    "fmt"
+    _ "fmt"
 )
 
-
+const size int = 4096
 
 func reader(path string) io.Reader {
     var err error
@@ -29,7 +29,6 @@ func main() {
   flag.Parse()
 
   input := reader(*path)
-  fmt.Print("Brainfuck say:\n")
 
   buf := make([]byte, 0)
   scanner := bufio.NewScanner(input)
@@ -46,7 +45,6 @@ func main() {
   reader := bufio.NewReader(os.Stdin)
   writer := bufio.NewWriter(os.Stdout)
 
-  const size int = 1024
   var mem[size]byte
   vm := Machine{0, size, mem, *reader, *writer}
 
