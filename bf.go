@@ -9,8 +9,6 @@ import (
     _ "fmt"
 )
 
-const size int = 4096
-
 func reader(path string) io.Reader {
     var err error
     r := os.Stdin
@@ -21,6 +19,18 @@ func reader(path string) io.Reader {
         }
     }
     return r
+}
+
+func run(buf []byte) {
+  const size int = 4096
+  var mem[size]byte
+  reader := bufio.NewReader(os.Stdin)
+  writer := bufio.NewWriter(os.Stdout)
+
+  vm := Machine{0, size, mem, *reader, *writer}
+  vm.Compute(buf)
+
+  vm.Writer.Flush()
 }
 
 func main() {
@@ -42,13 +52,5 @@ func main() {
           panic(err)
   }
 
-  reader := bufio.NewReader(os.Stdin)
-  writer := bufio.NewWriter(os.Stdout)
-
-  var mem[size]byte
-  vm := Machine{0, size, mem, *reader, *writer}
-
-  vm.Compute(buf)
-
-  vm.Writer.Flush()
+  run(buf)
 }
