@@ -1,7 +1,6 @@
 package main
 
 import (
-    . "github.com/ubermint/bf-go/machine"
     "io"
     "os"
     "bufio"
@@ -34,7 +33,6 @@ func run(buf []byte) {
 
 func main() {
     path := flag.String("file", "", "a string")
-    // unicode := flag.Bool("utf", false, "a bool")
     flag.Parse()
 
     input := reader(*path)
