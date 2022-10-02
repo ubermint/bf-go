@@ -6,7 +6,10 @@ import (
     "os"
     "bufio"
     "flag"
+    "fmt"
 )
+
+
 
 func reader(path string) io.Reader {
     var err error
@@ -20,37 +23,34 @@ func reader(path string) io.Reader {
     return r
 }
 
-func run(buf []byte) {
-    const size int = 4096
-    var mem[size]byte
-    reader := bufio.NewReader(os.Stdin)
-    writer := bufio.NewWriter(os.Stdout)
-
-    vm := Machine{0, size, mem, *reader, *writer}
-    vm.Compute(buf)
-
-    vm.Writer.Flush()
-}
-
 func main() {
-    path := flag.String("file", "", "a string")
-    // unicode := flag.Bool("utf", false, "a bool")
-    flag.Parse()
+  path := flag.String("file", "", "a string")
+  // unicode := flag.Bool("utf", false, "a bool")
+  flag.Parse()
 
-    input := reader(*path)
+  input := reader(*path)
+  fmt.Print("Brainfuck say:\n")
 
-    buf := make([]byte, 0)
-    scanner := bufio.NewScanner(input)
-    scanner.Split(bufio.ScanBytes)
+  buf := make([]byte, 0)
+  scanner := bufio.NewScanner(input)
+  scanner.Split(bufio.ScanBytes)
+  for scanner.Scan() {
+    b := scanner.Bytes()[0]
+    buf = append(buf, b)
+  }
 
-    for scanner.Scan() {
-        b := scanner.Bytes()[0]
-        buf = append(buf, b)
-    }
-
-    if err := scanner.Err(); err != nil {
+  if err := scanner.Err(); err != nil {
           panic(err)
-    }
+  }
 
-    run(buf)
+  reader := bufio.NewReader(os.Stdin)
+  writer := bufio.NewWriter(os.Stdout)
+
+  const size int = 1024
+  var mem[size]byte
+  vm := Machine{0, size, mem, *reader, *writer}
+
+  vm.Compute(buf)
+
+  vm.Writer.Flush()
 }
