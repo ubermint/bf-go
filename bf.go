@@ -1,70 +1,12 @@
 package main
 
 import (
+    . "github.com/ubermint/bf-go/machine"
     "io"
     "os"
     "bufio"
     "flag"
-    "fmt"
 )
-
-type Machine struct {
-  index int
-  size int
-  mem [1024]byte
-  reader bufio.Reader
-  writer bufio.Writer
-}
-
-func (m *Machine) read() byte {
-  b, err := m.reader.ReadByte()
-  if err != nil {
-    panic(err)
-  }
-  return b
-}
-
-func (m *Machine) write(b *byte) {
-  var err error
-  err = m.writer.WriteByte(*b)
-  if err != nil {
-    panic(err)
-  }
-}
-
-func (m *Machine) compute(code []byte) {
-  for i := 0; i < len(code); i++ {
-      char := code[i]
-      switch char {
-        case '>': m.index = (m.index + m.size + 1) % m.size
-        case '<': m.index = (m.index + m.size - 1) % m.size
-        case '+': m.mem[m.index] += 1
-        case '-': m.mem[m.index] -= 1
-        case '.':
-          output := m.mem[m.index]
-          m.write(&output)
-        case ',':
-          input := m.read()
-          m.mem[m.index] += input
-        case '[':
-          if m.mem[m.index] == 0 {
-            for loop := 1; loop > 0; {
-              i++
-              if code[i] == '[' { loop++ }
-              if code[i] == ']' { loop-- }
-            }
-          }
-        case ']':
-          if m.mem[m.index] != 0 {
-            for loop := 1; loop > 0; {
-              i--
-              if code[i] == ']' { loop++ }
-              if code[i] == '[' { loop-- }
-            }
-          }
-      }
-    }
-}
 
 func reader(path string) io.Reader {
     var err error
@@ -78,34 +20,37 @@ func reader(path string) io.Reader {
     return r
 }
 
+func run(buf []byte) {
+    const size int = 4096
+    var mem[size]byte
+    reader := bufio.NewReader(os.Stdin)
+    writer := bufio.NewWriter(os.Stdout)
+
+    vm := Machine{0, size, mem, *reader, *writer}
+    vm.Compute(buf)
+
+    vm.Writer.Flush()
+}
+
 func main() {
-  path := flag.String("file", "", "a string")
-  // unicode := flag.Bool("utf", false, "a bool")
-  flag.Parse()
+    path := flag.String("file", "", "a string")
+    // unicode := flag.Bool("utf", false, "a bool")
+    flag.Parse()
 
-  input := reader(*path)
-  fmt.Print("Brainfuck say:\n")
+    input := reader(*path)
 
-  buf := make([]byte, 0)
-  scanner := bufio.NewScanner(input)
-  scanner.Split(bufio.ScanBytes)
-  for scanner.Scan() {
-    b := scanner.Bytes()[0]
-    buf = append(buf, b)
-  }
+    buf := make([]byte, 0)
+    scanner := bufio.NewScanner(input)
+    scanner.Split(bufio.ScanBytes)
 
-  if err := scanner.Err(); err != nil {
+    for scanner.Scan() {
+        b := scanner.Bytes()[0]
+        buf = append(buf, b)
+    }
+
+    if err := scanner.Err(); err != nil {
           panic(err)
-  }
+    }
 
-  reader := bufio.NewReader(os.Stdin)
-  writer := bufio.NewWriter(os.Stdout)
-
-  const size int = 1024
-  var mem[size]byte
-  vm := Machine{0, size, mem, *reader, *writer}
-
-  vm.compute(buf)
-
-  vm.writer.Flush()
+    run(buf)
 }
