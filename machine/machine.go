@@ -7,7 +7,7 @@ import (
 type Machine struct {
   Index int
   Size int
-  Mem [1024]byte
+  Mem [4096]byte
   Reader bufio.Reader
   Writer bufio.Writer
 }
