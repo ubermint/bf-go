@@ -11,23 +11,19 @@ go build bf.go
 ```
 
 #### Usage
-Input from output:
+Input from file:
 ```sh
-./bf --utf --file=path/to/file
-```
-
-Input from stdin:
-```sh
-./bf < path/to/file
-```
-```sh
-./bf
-<here paste your bf program>
-<Ctrl+D to end input>
-<Ctrl+C to abort>
+./bf --file=path/to/file.bf
 ```
 
 Test samples:
 ```sh
 go test
+```
+
+Input from stdin:
+```sh
+./bf <here paste your bf program>
+<Ctrl+D to end input>
+<Ctrl+C to abort>
 ```
